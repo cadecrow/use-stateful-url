@@ -18,6 +18,8 @@ I would love to expand this to more frameworks / communities in the future. I kn
 
 ## Installation
 
+!!! npm package on the way. not yet published. feel free to copy /src for now !!!
+
 ```bash
 npm install use-stateful-url
 # or
