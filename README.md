@@ -1,6 +1,6 @@
 # use-stateful-url
 
-A powerful React hook for managing state synchronized with URL hash parameters. Perfect for creating shareable URLs with filters, modals, and other stateful UI components.
+A React hook for managing state synchronized with URL hash parameters. Useful for allowing specified pieces of state to be copy-able for sending in links or for state changes to be navigable via forward and back in the browser. Perfect for creating shareable URLs with filters, active modals, and other stateful UI components.
 
 I would love to expand this to more frameworks / communities in the future. I know many frameworks do not have the same "UI is a function of state" philosophy as React, but I could see the intended function for this project being useful in a mutated form appropriate for each framework. (Where are my other Solid.js interested folks)
 
