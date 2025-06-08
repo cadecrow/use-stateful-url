@@ -1,0 +1,74 @@
+{
+  "name": "use-stateful-url",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "A React hook for managing state and synchronizing it with URL hash parameters. Intended Purpose: To allow for URLs to be shared and have pages display as intended by the function of state. That means a page mount with state in the hash triggers the animations meant to be triggered by state changes, such as opening a modal or a menu from an id, or scrolling to a section of a page that is triggered by state.",
+  "main": "dist/useStatefulUrl.cjs.js",
+  "module": "dist/useStatefulUrl.esm.js",
+  "browser": "dist/useStatefulUrl.umd.js",
+  "unpkg": "dist/useStatefulUrl.umd.js",
+  "types": "dist/useStatefulUrl.d.ts",
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "build:check": "npm run build && node -e \"console.log('✅ Build files:'); require('fs').readdirSync('dist').forEach(f => console.log('  dist/' + f))\"",
+    "prepublishOnly": "npm run test && npm run build",
+    "test": "bun test bun-tests/",
+    "test:watch": "bun test bun-tests/ --watch",
+    "test:coverage": "bun test bun-tests/ --coverage",
+    "test:runner": "./bun-tests/run-bun-tests.sh",
+    "test:dom": "bun test browser-window-dom-tests/",
+    "test:dom:watch": "bun test browser-window-dom-tests/ --watch",
+    "test:dom:coverage": "bun test browser-window-dom-tests/ --coverage",
+    "test:all": "bun test bun-tests/ && bun test browser-window-dom-tests/",
+    "test:pure": "bun test bun-tests/",
+    "dev": "rollup -c --watch",
+    "publish:dry": "npm publish --dry-run",
+    "publish:check": "npm pack && tar -tzf *.tgz && rm *.tgz"
+  },
+  "keywords": [
+    "react",
+    "hook",
+    "url",
+    "hash",
+    "state",
+    "router",
+    "typescript",
+    "state-management",
+    "url-parameters",
+    "shareable-urls"
+  ],
+  "author": "Cade Crow",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^11.1.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.3.0",
+    "@types/bun": "^1.2.15",
+    "@types/node": "^22.15.30",
+    "@types/react": "^18.2.0",
+    "happy-dom": "^17.6.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rollup": "^3.25.0",
+    "typescript": "^5.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cadecrow/use-stateful-url"
+  },
+  "homepage": "https://github.com/cadecrow/use-stateful-url#readme",
+  "bugs": {
+    "url": "https://github.com/cadecrow/use-stateful-url/issues"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}

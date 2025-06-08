@@ -1,0 +1,6 @@
+_local/
+local/
+local*
+_local*
+
+node_modules/

@@ -1,0 +1,21 @@
+[test]
+# Bun test configuration for DOM-dependent tests
+preload = ["./setup.ts"]
+coverage = true
+timeout = 30000
+
+# Use happy-dom for DOM environment
+env = "happy-dom"
+
+# File patterns to test
+include = ["*.test.ts", "*.test.tsx"]
+exclude = ["node_modules", "dist"]
+
+[test.env]
+# Ensure proper DOM environment setup
+DOM_ENVIRONMENT = "happy-dom"
+TEST_TYPE = "dom"
+
+[install]
+# Install dependencies for testing
+dev = true 

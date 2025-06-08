@@ -1,0 +1,13 @@
+[test]
+# Bun test configuration
+preload = ["./setup.ts"]
+coverage = true
+timeout = 30000
+
+# File patterns to test
+include = ["*.test.ts", "*.test.tsx"]
+exclude = ["node_modules", "dist"]
+
+[install]
+# Install dependencies for testing
+dev = true 
