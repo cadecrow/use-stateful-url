@@ -35,10 +35,11 @@ import { useStatefulUrl } from "use-stateful-url";
 
 function MyComponent() {
 	const { state, setState, isInitialized } = useStatefulUrl({
-		search: "",
 		filters: new Set<string>(),
 		page: 1,
 	});
+	{ /* URL will be: example.com/gallery#filters=tag1,tag2&page=2 */ }
+	{ /* Actually, there will be special delimiters. More on that later. */ }
 
 	if (!isInitialized) {
 		return <div>Loading...</div>;
@@ -46,14 +47,27 @@ function MyComponent() {
 
 	return (
 		<div>
-			<input
-				value={state.search}
-				onChange={(e) =>
-					setState((prev) => ({ ...prev, search: e.target.value }))
+			<button
+				onClick={(e) =>
+					setState((prev) => {
+						const updatedPage = prev.page - 1;
+						return { ...prev, page: updatedPage };
+					})
 				}
-			/>
-			<p>Current page: {state.page}</p>
-			{/* URL will be: #search=hello&filters=tag1,tag2&page=2 */}
+			>
+				Previous Page
+			</button>
+			<span>Current page: {state.page}</span>
+			<button
+				onClick={(e) =>
+					setState((prev) => {
+						const updatedPage = prev.page + 1;
+						return { ...prev, page: updatedPage };
+					})
+				}
+			>
+				Next Page
+			</button>
 		</div>
 	);
 }
@@ -872,8 +886,9 @@ function ProductSearch() {
 ```
 
 **The Result**: Both hooks compete for the same URL space, causing:
+
 - State from one hook overwrites the other
-- Unpredictable initialization behavior  
+- Unpredictable initialization behavior
 - Lost state when components re-render
 - Difficult debugging due to intermittent issues
 
@@ -924,6 +939,7 @@ function ProductSearch() {
 **Best Practices for Multiple Hooks**:
 
 1. **Always use descriptive, unique delimiters** when you might have multiple hooks:
+
    ```tsx
    // ✅ Good: Descriptive and unique
    delimiters: { start: "__MODAL_STATE_", end: "_MODAL_STATE__" }
@@ -932,6 +948,7 @@ function ProductSearch() {
    ```
 
 2. **Consider a delimiter naming convention** for your app:
+
    ```tsx
    // Pattern: __COMPONENT_PURPOSE_
    delimiters: { start: "__HEADER_SEARCH_", end: "_HEADER_SEARCH__" }
@@ -940,19 +957,24 @@ function ProductSearch() {
    ```
 
 3. **Document delimiter usage** in deeply nested component trees:
+
    ```tsx
    // Add comments when hooks might be nested unknowingly
    function DeepChild() {
    	// NOTE: Parent components may also use useStatefulUrl
    	// Using unique delimiters to prevent conflicts
-		// Consider using a utility function like below or some type of hashing function (not to be confused with url hash fragments) for truly unique names
+   	// Consider using a utility function like below or some type of hashing function (not to be confused with url hash fragments) for truly unique names
    	const { state } = useStatefulUrl(initialState, {
-   		delimiters: { start: "__DEEP_CHILD_sdhiweruh_", end: "_DEEP_CHILD_sdhiweruh___" }, // pretend this was a proper hash
+   		delimiters: {
+   			start: "__DEEP_CHILD_sdhiweruh_",
+   			end: "_DEEP_CHILD_sdhiweruh___",
+   		}, // pretend this was a proper hash
    	});
    }
    ```
 
 4. **Create utility functions** for consistent delimiter generation:
+
    ```tsx
    // ✅ Utility for consistent delimiter naming
    const createDelimiters = (componentName: string) => ({
