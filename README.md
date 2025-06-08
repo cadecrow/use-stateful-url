@@ -579,7 +579,7 @@ serializers: {
 
 ## ⚠️ Common Pitfalls & Solutions
 
-Check above for [common pitfalls with url serialization](#❌-common-mistakes-to-avoid)
+Check above for [common pitfalls with url serialization](#-common-mistakes-to-avoid)
 
 ### 1. State Lifecycle Mismatch (URL vs User Interaction)
 
@@ -995,7 +995,6 @@ The hook automatically handles performance optimizations:
 
 - Modern browsers with URLSearchParams support
 - Works with SSR frameworks like Next.js, Nuxt.js
-- IE11+ (with URLSearchParams polyfill)
 
 ## Contributing
 
