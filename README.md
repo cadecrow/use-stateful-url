@@ -756,7 +756,7 @@ function SearchInput() {
 	const { state, setState } = useStatefulUrl(
 		{ query: "" },
 		{
-			debounceMs: 300, // Debounce URL updates
+			debounceMs: 1500, // Debounce URL updates
 			usePushState: false, // Use replaceState for transient changes
 		}
 	);
