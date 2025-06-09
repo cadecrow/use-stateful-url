@@ -18,7 +18,7 @@ I would love to expand this to more frameworks / communities in the future. I kn
 
 ## Installation
 
-!!! npm package on the way. not yet published. feel free to copy /src for now !!!
+!!! npm package on the way. Currently facing issues with npm account and publishing permissions. Feel free to copy /src for now !!!
 
 ```bash
 npm install use-stateful-url
@@ -38,8 +38,12 @@ function MyComponent() {
 		filters: new Set<string>(),
 		page: 1,
 	});
-	{ /* URL will be: example.com/gallery#filters=tag1,tag2&page=2 */ }
-	{ /* Actually, there will be special delimiters. More on that later. */ }
+	{
+		/* URL will be: example.com/gallery#filters=tag1,tag2&page=2 */
+	}
+	{
+		/* Actually, there will be special delimiters. More on that later. */
+	}
 
 	if (!isInitialized) {
 		return <div>Loading...</div>;
