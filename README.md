@@ -39,15 +39,11 @@ import { useStatefulUrl } from "use-stateful-url";
 
 function MyComponent() {
 	const { state, setState, isInitialized } = useStatefulUrl({
+		/* URL will look something like: example.com/gallery#filters=tag1,tag2&page=2 */
+		/* (Actually, the url will contain special delimiters. More on that later.) */
 		filters: new Set<string>(),
 		page: 1,
 	});
-	{
-		/* URL will be: example.com/gallery#filters=tag1,tag2&page=2 */
-	}
-	{
-		/* Actually, there will be special delimiters. More on that later. */
-	}
 
 	if (!isInitialized) {
 		return <div>Loading...</div>;
