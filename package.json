@@ -1,6 +1,6 @@
 {
   "name": "use-stateful-url",
-  "version": "0.0.5-2",
+  "version": "0.0.5-3",
   "type": "module",
   "description": "A React hook for managing state and synchronizing it with URL hash parameters. Intended Purpose: To allow for URLs to be shared and have pages display as intended by the function of state or allow changes in state to be navigable via forward and backward in the browser. For example, that means a page mount with state in the hash triggers the animations meant to be triggered by state changes, such as opening a modal or a menu from an id, or scrolling to a section of a page that is triggered by state, or to add and remove filters using forward and back.",
   "main": "dist/useStatefulUrl.cjs.js",
