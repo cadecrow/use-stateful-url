@@ -280,7 +280,7 @@ const hashWithoutState = hashUtils.getHashWithoutState({
 });
 
 // Safely update the non-useStatefulUrl portion of the hash
-hashUtils.updateExternalHash("tab=profile&debug=true");
+hashUtils.setExternalHash("tab=profile&debug=true");
 // This preserves useStatefulUrl content while updating external parameters
 ```
 
@@ -297,7 +297,7 @@ function changeTab(newTab: string) {
 	// window.location.hash = `tab=${newTab}&debug=true`;
 
 	// NEW WAY (safe - preserves useStatefulUrl content):
-	hashUtils.updateExternalHash(`tab=${newTab}&debug=true`);
+	hashUtils.setExternalHash(`tab=${newTab}&debug=true`);
 }
 
 // useStatefulUrl content is automatically preserved!
@@ -324,7 +324,7 @@ const currentTab = new URLSearchParams(window.location.hash.substring(1)).get(
 ); // Still works!
 
 // Update existing params safely:
-hashUtils.updateExternalHash(`tab=settings&section=profile`); // useStatefulUrl content preserved
+hashUtils.setExternalHash(`tab=settings&section=profile`); // useStatefulUrl content preserved
 ```
 
 ## Advanced Usage
