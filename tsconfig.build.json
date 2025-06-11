@@ -27,7 +27,6 @@
     "bun-tests",
     "browser-window-dom-tests", 
     "scripts",
-    "examples",
     "docs",
     "**/*.test.ts"
   ]

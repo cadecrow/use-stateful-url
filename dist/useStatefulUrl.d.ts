@@ -81,10 +81,10 @@ export declare const hashUtils: {
         end: string;
     }) => boolean;
     /** Safely update the non-useStatefulUrl portion of the hash */
-    updateExternalHash: (newExternalHash: string, delimiters?: {
+    setExternalHash: (newExternalHash: string, delimiters?: {
         start: string;
         end: string;
-    }, usePushState?: boolean) => void;
+    }[], usePushState?: boolean) => void;
 };
 /**
  * Custom hook for managing state synchronized with URL hash parameters

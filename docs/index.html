@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>useStatefulUrl Demo - URL State Management</title>
+		<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+		<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+		<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+		<!-- Import use-stateful-url from unpkg -->
+		<script src="https://unpkg.com/use-stateful-url@latest/dist/useStatefulUrl.umd.js"></script>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+					sans-serif;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				min-height: 100vh;
+			}
+
+			.container {
+				max-width: 1200px;
+				margin: 0 auto;
+				padding: 2rem;
+			}
+
+			.header {
+				text-align: center;
+				color: white;
+				margin-bottom: 3rem;
+			}
+
+			.header h1 {
+				font-size: 3rem;
+				margin-bottom: 1rem;
+				text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+			}
+
+			.header p {
+				font-size: 1.2rem;
+				opacity: 0.9;
+				margin-bottom: 0.5rem;
+			}
+
+			.url-display {
+				background: rgba(0, 0, 0, 0.2);
+				padding: 0.5rem 1rem;
+				border-radius: 8px;
+				font-family: monospace;
+				font-size: 0.9rem;
+				margin-top: 1rem;
+				word-break: break-all;
+			}
+
+			.demo-section {
+				background: white;
+				padding: 2rem;
+				border-radius: 16px;
+				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+				margin-bottom: 2rem;
+			}
+
+			.demo-section h2 {
+				color: #2d3748;
+				margin-bottom: 1rem;
+				font-size: 1.8rem;
+				border-bottom: 3px solid #667eea;
+				padding-bottom: 0.5rem;
+			}
+
+			.demo-description {
+				color: #4a5568;
+				margin-bottom: 2rem;
+				font-size: 1.1rem;
+				line-height: 1.6;
+			}
+
+			/* Original Demo Styles */
+			.search-section {
+				margin-bottom: 2rem;
+			}
+
+			.search-input {
+				width: 100%;
+				padding: 1rem;
+				font-size: 1.1rem;
+				border: 2px solid #e2e8f0;
+				border-radius: 12px;
+				outline: none;
+				transition: all 0.3s ease;
+			}
+
+			.search-input:focus {
+				border-color: #667eea;
+				box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+			}
+
+			.filters-section h3 {
+				margin-bottom: 1rem;
+				color: #2d3748;
+				font-size: 1.2rem;
+			}
+
+			.tag-filters {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem;
+			}
+
+			.tag-filter {
+				padding: 0.5rem 1rem;
+				border: 2px solid #e2e8f0;
+				border-radius: 20px;
+				background: white;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				font-weight: 500;
+			}
+
+			.tag-filter:hover {
+				border-color: #667eea;
+				transform: translateY(-1px);
+			}
+
+			.tag-filter.active {
+				background: #667eea;
+				color: white;
+				border-color: #667eea;
+				transform: translateY(-1px);
+				box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+			}
+
+			.clear-filters {
+				margin-left: 1rem;
+				padding: 0.5rem 1rem;
+				background: #ef4444;
+				color: white;
+				border: none;
+				border-radius: 8px;
+				cursor: pointer;
+				font-weight: 500;
+				transition: all 0.3s ease;
+			}
+
+			.clear-filters:hover {
+				background: #dc2626;
+				transform: translateY(-1px);
+			}
+
+			.results-info {
+				background: #f7fafc;
+				padding: 1rem 2rem;
+				border-radius: 12px;
+				margin-bottom: 2rem;
+				box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+				color: #4a5568;
+				font-weight: 500;
+			}
+
+			.cards-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+				gap: 2rem;
+			}
+
+			.card {
+				background: white;
+				border-radius: 16px;
+				padding: 1.5rem;
+				box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+				cursor: pointer;
+				transition: all 0.3s ease;
+				border: 2px solid transparent;
+			}
+
+			.card:hover {
+				transform: translateY(-5px);
+				box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+				border-color: #667eea;
+			}
+
+			.card-header {
+				margin-bottom: 1rem;
+			}
+
+			.card-title {
+				font-size: 1.3rem;
+				font-weight: bold;
+				color: #2d3748;
+				margin-bottom: 0.5rem;
+			}
+
+			.card-category {
+				color: #667eea;
+				font-weight: 600;
+				font-size: 0.9rem;
+			}
+
+			.card-description {
+				color: #4a5568;
+				line-height: 1.6;
+				margin-bottom: 1.5rem;
+			}
+
+			.card-tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem;
+			}
+
+			.card-tag {
+				background: #f7fafc;
+				color: #4a5568;
+				padding: 0.25rem 0.75rem;
+				border-radius: 12px;
+				font-size: 0.8rem;
+				font-weight: 500;
+				border: 1px solid #e2e8f0;
+			}
+
+			/* Delimiter Demo Styles */
+			.delimiter-controls {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+				gap: 2rem;
+				margin-bottom: 2rem;
+			}
+
+			.control-group {
+				background: #f7fafc;
+				padding: 1.5rem;
+				border-radius: 12px;
+				border: 1px solid #e2e8f0;
+			}
+
+			.control-group h4 {
+				color: #2d3748;
+				margin-bottom: 1rem;
+				font-size: 1.1rem;
+			}
+
+			.control-group label {
+				display: block;
+				margin-bottom: 0.5rem;
+				color: #4a5568;
+				font-weight: 500;
+			}
+
+			.control-group input,
+			.control-group select {
+				width: 100%;
+				padding: 0.5rem;
+				border: 1px solid #cbd5e0;
+				border-radius: 6px;
+				margin-bottom: 1rem;
+				font-size: 0.9rem;
+			}
+
+			.control-group input[type="checkbox"] {
+				width: auto;
+				margin-right: 0.5rem;
+			}
+
+			.checkbox-group {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 1rem;
+			}
+
+			.checkbox-group label {
+				display: flex;
+				align-items: center;
+				margin-bottom: 0;
+			}
+
+			.hash-visualization {
+				background: #fff;
+				border: 1px solid #e2e8f0;
+				border-radius: 8px;
+				padding: 1rem;
+				margin: 1rem 0;
+				font-family: monospace;
+				font-size: 0.9rem;
+			}
+
+			.hash-part {
+				margin: 0.5rem 0;
+				padding: 0.25rem 0;
+			}
+
+			.hash-label {
+				font-weight: bold;
+				margin-right: 1rem;
+				min-width: 150px;
+				display: inline-block;
+			}
+
+			.existing-hash {
+				color: #e53e3e;
+			}
+
+			.uhs-content {
+				color: #38a169;
+			}
+
+			.demo-button {
+				background: #667eea;
+				color: white;
+				border: none;
+				padding: 0.75rem 1.5rem;
+				border-radius: 8px;
+				cursor: pointer;
+				font-weight: 500;
+				margin: 0.25rem;
+				transition: all 0.3s ease;
+			}
+
+			.demo-button:hover {
+				background: #5a67d8;
+				transform: translateY(-1px);
+			}
+
+			.demo-button.secondary {
+				background: #718096;
+			}
+
+			.demo-button.secondary:hover {
+				background: #4a5568;
+			}
+
+			/* Modal Styles */
+			.modal-overlay {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: rgba(0, 0, 0, 0.7);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				z-index: 1000;
+				padding: 2rem;
+			}
+
+			.modal {
+				background: white;
+				border-radius: 20px;
+				padding: 2.5rem;
+				max-width: 600px;
+				width: 100%;
+				max-height: 80vh;
+				overflow-y: auto;
+				position: relative;
+				box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+			}
+
+			.modal-close {
+				position: absolute;
+				top: 1.5rem;
+				right: 1.5rem;
+				background: #f7fafc;
+				border: none;
+				width: 40px;
+				height: 40px;
+				border-radius: 50%;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 1.2rem;
+				color: #4a5568;
+				transition: all 0.3s ease;
+			}
+
+			.modal-close:hover {
+				background: #ef4444;
+				color: white;
+			}
+
+			.modal-title {
+				font-size: 2rem;
+				font-weight: bold;
+				color: #2d3748;
+				margin-bottom: 1rem;
+			}
+
+			.modal-category {
+				color: #667eea;
+				font-weight: 600;
+				margin-bottom: 2rem;
+			}
+
+			.modal-description {
+				color: #4a5568;
+				line-height: 1.7;
+				margin-bottom: 2rem;
+				font-size: 1.1rem;
+			}
+
+			.modal-tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.75rem;
+			}
+
+			.modal-tag {
+				background: #667eea;
+				color: white;
+				padding: 0.5rem 1rem;
+				border-radius: 16px;
+				font-weight: 500;
+			}
+
+			.loading {
+				text-align: center;
+				color: white;
+				font-size: 1.2rem;
+				padding: 3rem;
+			}
+
+			@media (max-width: 768px) {
+				.container {
+					padding: 1rem;
+				}
+
+				.header h1 {
+					font-size: 2rem;
+				}
+
+				.demo-section {
+					padding: 1.5rem;
+				}
+
+				.cards-grid {
+					grid-template-columns: 1fr;
+				}
+
+				.delimiter-controls {
+					grid-template-columns: 1fr;
+				}
+
+				.modal {
+					margin: 1rem;
+					padding: 2rem;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div id="root"></div>
+
+		<script type="text/babel">
+			const { useState, useEffect, useCallback, useRef, useMemo } = React;
+
+			// Check if useStatefulUrl is available
+			if (!window.useStatefulUrl) {
+				console.error(
+					"useStatefulUrl not found on window object. Available properties:",
+					Object.keys(window)
+				);
+				throw new Error("useStatefulUrl package not loaded properly");
+			}
+
+			// Use the actual useStatefulUrl from the imported package
+			const { useStatefulUrl, hashUtils } = window.useStatefulUrl;
+
+			// Mock data for the demo
+			const sampleProjects = [
+				{
+					id: "ecommerce-app",
+					title: "E-commerce Platform",
+					category: "Web Development",
+					description:
+						"A full-stack e-commerce platform built with React, Node.js, and PostgreSQL. Features include user authentication, shopping cart, payment processing, and admin dashboard.",
+					tags: ["React", "Node.js", "PostgreSQL", "Stripe", "Redux"],
+				},
+				{
+					id: "ai-chatbot",
+					title: "AI Customer Support Bot",
+					category: "Artificial Intelligence",
+					description:
+						"An intelligent chatbot using natural language processing to provide automated customer support. Integrates with existing helpdesk systems.",
+					tags: ["Python", "TensorFlow", "NLP", "FastAPI", "Docker"],
+				},
+				{
+					id: "mobile-fitness",
+					title: "Fitness Tracking App",
+					category: "Mobile Development",
+					description:
+						"Cross-platform mobile app for tracking workouts, nutrition, and health metrics. Includes social features and gamification elements.",
+					tags: [
+						"React Native",
+						"TypeScript",
+						"Firebase",
+						"Redux",
+						"Health APIs",
+					],
+				},
+				{
+					id: "blockchain-wallet",
+					title: "Crypto Wallet",
+					category: "Blockchain",
+					description:
+						"Secure cryptocurrency wallet with support for multiple blockchains. Features hardware wallet integration and DeFi protocol support.",
+					tags: ["Blockchain", "Solidity", "Web3", "React", "Security"],
+				},
+				{
+					id: "data-dashboard",
+					title: "Analytics Dashboard",
+					category: "Data Science",
+					description:
+						"Real-time analytics dashboard for business intelligence. Processes large datasets and provides interactive visualizations.",
+					tags: ["Python", "D3.js", "Pandas", "Redis", "WebSockets"],
+				},
+				{
+					id: "iot-monitor",
+					title: "IoT Monitoring System",
+					category: "Internet of Things",
+					description:
+						"Comprehensive IoT device monitoring and management system. Handles thousands of sensors with real-time alerting.",
+					tags: ["IoT", "MQTT", "InfluxDB", "Grafana", "Docker"],
+				},
+				{
+					id: "game-engine",
+					title: "2D Game Engine",
+					category: "Game Development",
+					description:
+						"Lightweight 2D game engine with visual scripting capabilities. Designed for indie developers and educational purposes.",
+					tags: ["C++", "OpenGL", "Game Dev", "Graphics", "Audio"],
+				},
+				{
+					id: "ml-pipeline",
+					title: "ML Training Pipeline",
+					category: "Machine Learning",
+					description:
+						"Automated machine learning pipeline for model training, validation, and deployment. Supports various ML frameworks.",
+					tags: ["Python", "MLflow", "Kubernetes", "TensorFlow", "PyTorch"],
+				},
+				{
+					id: "api-gateway",
+					title: "Microservices Gateway",
+					category: "Backend Development",
+					description:
+						"High-performance API gateway for microservices architecture. Includes rate limiting, authentication, and monitoring.",
+					tags: ["Go", "Microservices", "Redis", "Prometheus", "gRPC"],
+				},
+				{
+					id: "cms-platform",
+					title: "Headless CMS",
+					category: "Content Management",
+					description:
+						"Modern headless CMS with GraphQL API, real-time collaboration, and multi-language support for global teams.",
+					tags: ["GraphQL", "Node.js", "MongoDB", "React", "TypeScript"],
+				},
+			];
+
+			const allTags = [
+				...new Set(sampleProjects.flatMap((p) => p.tags)),
+			].sort();
+
+			// Project Gallery Demo Component
+			function ProjectGalleryDemo() {
+				const { state, setState, isInitialized } = useStatefulUrl(
+					{
+						selectedTags: new Set(),
+						searchQuery: "",
+						selectedItemId: null,
+					},
+					{
+						serializers: {
+							serialize: (state) => {
+								const result = {};
+								if (state.selectedTags.size > 0) {
+									result.tags = Array.from(state.selectedTags).join(",");
+								}
+								if (state.searchQuery) {
+									result.search = state.searchQuery;
+								}
+								if (state.selectedItemId) {
+									result.item = state.selectedItemId;
+								}
+								return result;
+							},
+							deserialize: (params) => {
+								const tagsParam = params.get("tags");
+								const selectedTags = tagsParam
+									? new Set(
+											tagsParam
+												.split(",")
+												.filter((tag) => allTags.includes(tag))
+									  )
+									: new Set();
+
+								const searchQuery = params.get("search") || "";
+								const selectedItemId = params.get("item") || null;
+
+								return { selectedTags, searchQuery, selectedItemId };
+							},
+						},
+					}
+				);
+
+				const selectedItem = state.selectedItemId
+					? sampleProjects.find((p) => p.id === state.selectedItemId)
+					: null;
+
+				const filteredProjects = sampleProjects.filter((project) => {
+					const matchesSearch =
+						!state.searchQuery ||
+						project.title
+							.toLowerCase()
+							.includes(state.searchQuery.toLowerCase()) ||
+						project.description
+							.toLowerCase()
+							.includes(state.searchQuery.toLowerCase()) ||
+						project.category
+							.toLowerCase()
+							.includes(state.searchQuery.toLowerCase());
+
+					const matchesTags =
+						state.selectedTags.size === 0 ||
+						project.tags.some((tag) => state.selectedTags.has(tag));
+
+					return matchesSearch && matchesTags;
+				});
+
+				const toggleTag = (tag) => {
+					setState((prev) => {
+						const newTags = new Set(prev.selectedTags);
+						if (newTags.has(tag)) {
+							newTags.delete(tag);
+						} else {
+							newTags.add(tag);
+						}
+						return { ...prev, selectedTags: newTags };
+					});
+				};
+
+				const clearFilters = () => {
+					setState((prev) => ({
+						...prev,
+						selectedTags: new Set(),
+						searchQuery: "",
+					}));
+				};
+
+				const openModal = (project) => {
+					setState((prev) => ({ ...prev, selectedItemId: project.id }));
+				};
+
+				const closeModal = () => {
+					setState((prev) => ({ ...prev, selectedItemId: null }));
+				};
+
+				if (!isInitialized) {
+					return <div className="loading">Loading demo...</div>;
+				}
+
+				return (
+					<div className="demo-section">
+						<h2>🎯 Interactive Project Gallery</h2>
+						<p className="demo-description">
+							This demo showcases complex state management with filtering,
+							search, and modal interactions. All state is preserved in the URL
+							for sharing and browser navigation.
+						</p>
+
+						<div className="search-section">
+							<input
+								type="text"
+								className="search-input"
+								placeholder="🔍 Search projects..."
+								value={state.searchQuery}
+								onChange={(e) =>
+									setState((prev) => ({
+										...prev,
+										searchQuery: e.target.value,
+									}))
+								}
+							/>
+						</div>
+
+						<div className="filters-section">
+							<h3>Filter by Technology:</h3>
+							<div className="tag-filters">
+								{allTags.map((tag) => (
+									<button
+										key={tag}
+										className={`tag-filter ${
+											state.selectedTags.has(tag) ? "active" : ""
+										}`}
+										onClick={() => toggleTag(tag)}
+									>
+										{tag}
+									</button>
+								))}
+								<button className="clear-filters" onClick={clearFilters}>
+									Clear All
+								</button>
+							</div>
+						</div>
+
+						<div className="results-info">
+							Showing {filteredProjects.length} of {sampleProjects.length}{" "}
+							projects
+							{state.selectedTags.size > 0 && (
+								<span>
+									{" "}
+									• Filtered by: {Array.from(state.selectedTags).join(", ")}
+								</span>
+							)}
+							{state.searchQuery && (
+								<span> • Search: "{state.searchQuery}"</span>
+							)}
+						</div>
+
+						<div className="cards-grid">
+							{filteredProjects.map((project) => (
+								<div
+									key={project.id}
+									className="card"
+									onClick={() => openModal(project)}
+								>
+									<div className="card-header">
+										<div className="card-title">{project.title}</div>
+										<div className="card-category">{project.category}</div>
+									</div>
+									<div className="card-description">
+										{project.description.slice(0, 120)}...
+									</div>
+									<div className="card-tags">
+										{project.tags.map((tag) => (
+											<span key={tag} className="card-tag">
+												{tag}
+											</span>
+										))}
+									</div>
+								</div>
+							))}
+						</div>
+
+						{selectedItem && (
+							<div className="modal-overlay" onClick={closeModal}>
+								<div className="modal" onClick={(e) => e.stopPropagation()}>
+									<button className="modal-close" onClick={closeModal}>
+										×
+									</button>
+									<div className="modal-title">{selectedItem.title}</div>
+									<div className="modal-category">{selectedItem.category}</div>
+									<div className="modal-description">
+										{selectedItem.description}
+									</div>
+									<div className="modal-tags">
+										{selectedItem.tags.map((tag) => (
+											<span key={tag} className="modal-tag">
+												{tag}
+											</span>
+										))}
+									</div>
+								</div>
+							</div>
+						)}
+					</div>
+				);
+			}
+
+			// Delimiter Demo Component
+			function DelimiterDemo({ children }) {
+				const [hashParts, setHashParts] = useState({
+					before: "",
+					useStatefulUrl: "",
+					after: "",
+				});
+
+				// useStatefulUrl with delimiters
+				const {
+					state: delimiterState,
+					setState: setDelimiterState,
+					isInitialized,
+				} = useStatefulUrl(
+					{
+						delimiterSearch: "",
+						delimiterTags: new Set(),
+					},
+					{
+						delimiters: { start: "__UHSdelims-", end: "-delimsUHS__" },
+						serializers: {
+							serialize: (state) => {
+								const result = {};
+								if (state.delimiterSearch) {
+									result.search = state.delimiterSearch;
+								}
+								if (state.delimiterTags.size > 0) {
+									result.tags = Array.from(state.delimiterTags).join(",");
+								}
+								return result;
+							},
+							deserialize: (params) => {
+								const search = params.get("search") || "";
+								const tagsParam = params.get("tags");
+								const tags = tagsParam
+									? new Set(tagsParam.split(","))
+									: new Set();
+								return { delimiterSearch: search, delimiterTags: tags };
+							},
+						},
+					}
+				);
+
+				// Existing hash state (simulated)
+				const [existingHash, setExistingHash] = useState({
+					tab: "dashboard",
+					debug: false,
+				});
+
+				// Update existing hash parameters
+				const updateExistingHash = () => {
+					const existingParams = new URLSearchParams();
+					existingParams.set("tab", existingHash.tab);
+					let newHash = existingParams.toString();
+
+					hashUtils.setExternalHash(newHash, [
+						{
+							start: "__UHSdelims-",
+							end: "-delimsUHS__",
+						},
+						{
+							start: "__UHS-",
+							end: "-UHS__",
+						},
+					]);
+				};
+
+				// Clear only useStatefulUrl content
+				const clearuseStatefulUrl = () => {
+					setDelimiterState({
+						delimiterSearch: "",
+						delimiterTags: new Set(),
+					});
+				};
+
+				// Clear all hash
+				const clearAllHash = () => {
+					window.location.hash = "";
+					setExistingHash({ tab: "dashboard", debug: false });
+				};
+
+				const delimiterTags = ["react", "vue", "angular", "svelte"];
+
+				if (!isInitialized) {
+					return <div className="loading">Loading delimiter demo...</div>;
+				}
+
+				return (
+					<div className="demo-section">
+						<h2>🔗 Delimiter Coexistence Demo</h2>
+						<p className="demo-description">
+							This demo shows how useStatefulUrl can coexist with existing hash
+							parameters using delimiters. The useStatefulUrl content is
+							isolated between "__UHSdelims-" and "-delimsUHS__" delimiters,
+							allowing your existing hash routing to continue working.
+						</p>
+
+						<div className="hash-visualization">
+							<div className="hash-part">
+								<span className="hash-label existing-hash">
+									Extra Hash Info:
+								</span>
+								<span>{hashParts.before + hashParts.after || "(none)"}</span>
+							</div>
+							<div className="hash-part">
+								<span className="hash-label uhs-content">
+									This useStatefulUrl content is isolated between "__UHSdelims-"
+									and "-delimsUHS__" delimiters, allowing your existing hash
+									routing to continue working, and the separate state from the
+									section above to be preserved.
+								</span>
+							</div>
+							{children && (
+								<div className="hash-part">
+									<span className="hash-label">Current URL Display:</span>
+									{children}
+								</div>
+							)}
+							<div>
+								<button className="demo-button" onClick={updateExistingHash}>
+									Add Extra Hash Info
+								</button>
+								<button
+									className="demo-button secondary"
+									onClick={clearuseStatefulUrl}
+								>
+									Clear useStatefulUrl Only
+								</button>
+								<button
+									className="demo-button secondary"
+									onClick={clearAllHash}
+								>
+									Clear All Hash
+								</button>
+							</div>
+						</div>
+
+						<div className="delimiter-controls">
+							<div className="control-group">
+								<h4>🏛️ Existing Hash Parameters</h4>
+								<p
+									style={{
+										fontSize: "0.9rem",
+										color: "#718096",
+										marginBottom: "1rem",
+									}}
+								>
+									These represent hash parameters your app might already be
+									using:
+								</p>
+
+								<label>
+									Tab:
+									<select
+										value={existingHash.tab}
+										onChange={(e) =>
+											setExistingHash((prev) => ({
+												...prev,
+												tab: e.target.value,
+											}))
+										}
+									>
+										<option value="dashboard">Dashboard</option>
+										<option value="profile">Profile</option>
+										<option value="settings">Settings</option>
+									</select>
+								</label>
+
+								<label>
+									<input
+										type="checkbox"
+										checked={existingHash.debug}
+										onChange={(e) =>
+											setExistingHash((prev) => ({
+												...prev,
+												debug: e.target.checked,
+											}))
+										}
+									/>
+									Debug Mode
+								</label>
+							</div>
+
+							<div className="control-group">
+								<h4>⚡ useStatefulUrl Parameters</h4>
+								<p
+									style={{
+										fontSize: "0.9rem",
+										color: "#718096",
+										marginBottom: "1rem",
+									}}
+								>
+									These parameters are managed by useStatefulUrl and isolated
+									with delimiters:
+								</p>
+
+								<label>
+									Search Query:
+									<input
+										type="text"
+										placeholder="Type to search..."
+										value={delimiterState.delimiterSearch}
+										onChange={(e) =>
+											setDelimiterState((prev) => ({
+												...prev,
+												delimiterSearch: e.target.value,
+											}))
+										}
+									/>
+								</label>
+
+								<label>Framework Tags:</label>
+								<div className="checkbox-group">
+									{delimiterTags.map((tag) => (
+										<label key={tag}>
+											<input
+												type="checkbox"
+												checked={delimiterState.delimiterTags.has(tag)}
+												onChange={(e) => {
+													setDelimiterState((prev) => {
+														const newTags = new Set(prev.delimiterTags);
+														if (e.target.checked) {
+															newTags.add(tag);
+														} else {
+															newTags.delete(tag);
+														}
+														return { ...prev, delimiterTags: newTags };
+													});
+												}}
+											/>
+											{tag.charAt(0).toUpperCase() + tag.slice(1)}
+										</label>
+									))}
+								</div>
+							</div>
+						</div>
+					</div>
+				);
+			}
+
+			// Main Demo Component
+			function ComprehensiveDemo() {
+				// Track current URL in state to fix the lag issue
+				const [currentUrl, setCurrentUrl] = useState(window.location.href);
+
+				useEffect(() => {
+					// Immediate update
+					setCurrentUrl(window.location.href);
+
+					// Handle hash changes
+					const handleHashChange = () => {
+						// Use requestAnimationFrame to ensure we get the updated URL after React's updates
+						requestAnimationFrame(() => {
+							setCurrentUrl(window.location.href);
+						});
+					};
+
+					// Handle any programmatic URL changes
+					const handleLocationChange = () => {
+						requestAnimationFrame(() => {
+							setCurrentUrl(window.location.href);
+						});
+					};
+
+					// Listen for hash changes
+					window.addEventListener("hashchange", handleHashChange);
+
+					// Also set up a periodic check to catch any missed updates
+					const intervalId = setInterval(handleLocationChange, 100);
+
+					return () => {
+						window.removeEventListener("hashchange", handleHashChange);
+						clearInterval(intervalId);
+					};
+				}, []);
+
+				return (
+					<div className="container">
+						<div className="header">
+							<h1>🚀 useStatefulUrl Demo</h1>
+							<p>Powerful URL state management for React applications</p>
+							<p>
+								Explore advanced features including complex state
+								synchronization and delimiter-based coexistence!
+							</p>
+							<div className="url-display">Current URL: {currentUrl}</div>
+						</div>
+
+						<ProjectGalleryDemo />
+
+						<DelimiterDemo>
+							<div
+								className="url-display"
+								style={{ margin: 0, fontSize: "0.8rem" }}
+							>
+								{currentUrl}
+							</div>
+						</DelimiterDemo>
+					</div>
+				);
+			}
+
+			ReactDOM.createRoot(document.getElementById("root")).render(
+				<ComprehensiveDemo />
+			);
+		</script>
+	</body>
+</html>

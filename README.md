@@ -18,15 +18,11 @@ I would love to expand this to more frameworks / communities in the future. I kn
 
 ## Installation
 
-!!! npm package on the way. Currently facing issues with npm account and publishing permissions. Feel free to copy /src for now !!!
-
 ```bash
-# Installation via npm coming soon!!! For now, copy /src from github if you want to use the hook
 npm install use-stateful-url
 # or
 bun add use-stateful-url
-
-# untested installation with yarn or pnpm
+#or
 yarn add use-stateful-url
 # or
 pnpm add use-stateful

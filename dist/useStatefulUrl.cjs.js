@@ -111,7 +111,7 @@ const DEFAULT_DELIMITERS = {
     start: "__UHS-",
     end: "-UHS__",
 };
-const extractHashParts = (hash, delimiters = DEFAULT_DELIMITERS) => {
+const extractStatefulHashParts = (hash, delimiters = DEFAULT_DELIMITERS) => {
     const startDelim = delimiters.start;
     const endDelim = delimiters.end;
     const startIndex = hash.indexOf(startDelim);
@@ -119,28 +119,30 @@ const extractHashParts = (hash, delimiters = DEFAULT_DELIMITERS) => {
     if (startIndex === -1 || endIndex === -1 || endIndex <= startIndex) {
         return {
             before: hash,
-            useStatefulUrl: "",
+            statefulHash: "",
             after: "",
+            delimiters,
         };
     }
     return {
         before: hash.substring(0, startIndex),
-        useStatefulUrl: hash.substring(startIndex + startDelim.length, endIndex),
+        statefulHash: hash.substring(startIndex + startDelim.length, endIndex),
         after: hash.substring(endIndex + endDelim.length),
+        delimiters,
     };
 };
-const parseHash = (delimiters = DEFAULT_DELIMITERS) => {
+const parseStatefulHash = (delimiters = DEFAULT_DELIMITERS) => {
     if (!isClient())
         return new URLSearchParams();
     const hash = window.location.hash.substring(1);
-    const { useStatefulUrl } = extractHashParts(hash, delimiters);
-    return new URLSearchParams(useStatefulUrl);
+    const { statefulHash } = extractStatefulHashParts(hash, delimiters);
+    return new URLSearchParams(statefulHash);
 };
-const updateHash = (params, usePushState = false, delimiters = DEFAULT_DELIMITERS, positionStrategy = "end") => {
+const updateStatefulHash = (params, usePushState = false, delimiters = DEFAULT_DELIMITERS, positionStrategy = "end") => {
     if (!isClient())
         return;
     const currentHash = window.location.hash.substring(1);
-    const { before, after, useStatefulUrl: existingState, } = extractHashParts(currentHash, delimiters);
+    const { before, after, statefulHash: existingState, } = extractStatefulHashParts(currentHash, delimiters);
     const urlParams = new URLSearchParams();
     // Only add non-empty values
     for (const [key, value] of Object.entries(params)) {
@@ -201,7 +203,7 @@ const hashUtils = {
         if (!isClient())
             return "";
         const hash = window.location.hash.substring(1);
-        const { before, after } = extractHashParts(hash, delimiters);
+        const { before, after } = extractStatefulHashParts(hash, delimiters);
         return before + after;
     },
     /** Get only the useStatefulUrl content from hash */
@@ -209,8 +211,8 @@ const hashUtils = {
         if (!isClient())
             return "";
         const hash = window.location.hash.substring(1);
-        const { useStatefulUrl } = extractHashParts(hash, delimiters);
-        return useStatefulUrl;
+        const { statefulHash } = extractStatefulHashParts(hash, delimiters);
+        return statefulHash;
     },
     /** Check if hash contains useStatefulUrl content */
     hasHashState: (delimiters = DEFAULT_DELIMITERS) => {
@@ -220,15 +222,22 @@ const hashUtils = {
         return hash.includes(delimiters.start) && hash.includes(delimiters.end);
     },
     /** Safely update the non-useStatefulUrl portion of the hash */
-    updateExternalHash: (newExternalHash, delimiters = DEFAULT_DELIMITERS, usePushState = false) => {
+    setExternalHash: (newExternalHash, delimiters = [DEFAULT_DELIMITERS], usePushState = false) => {
         if (!isClient())
             return;
+        const statefulHashes = [];
         const currentHash = window.location.hash.substring(1);
-        const { useStatefulUrl } = extractHashParts(currentHash, delimiters);
+        for (const delimiter of delimiters) {
+            const { statefulHash } = extractStatefulHashParts(currentHash, delimiter);
+            if (statefulHash) {
+                statefulHashes.push(delimiter.start + statefulHash + delimiter.end);
+            }
+        }
+        const statefulUrl = statefulHashes.join("");
         let newHash = newExternalHash;
-        if (useStatefulUrl) {
+        if (statefulUrl) {
             // Add delimiter and useStatefulUrl content to the end for consistency
-            newHash += delimiters.start + useStatefulUrl + delimiters.end;
+            newHash += statefulUrl;
         }
         const newUrl = newHash
             ? `#${newHash}`
@@ -298,7 +307,7 @@ function useStatefulUrl(initialState, options = {}) {
         if (!isInitializedRef.current)
             return;
         const serialized = serialize(newState);
-        updateHash(serialized, usePushState, resolvedDelimiters, positionStrategy);
+        updateStatefulHash(serialized, usePushState, resolvedDelimiters, positionStrategy);
     }, [serialize, usePushState, resolvedDelimiters, positionStrategy]);
     const debouncedUpdateHash = useDebounce(updateHashCallback, debounceMs);
     // Initialize state from URL hash on mount
@@ -308,7 +317,7 @@ function useStatefulUrl(initialState, options = {}) {
             isInitializedRef.current = true;
             return;
         }
-        const params = parseHash(resolvedDelimiters);
+        const params = parseStatefulHash(resolvedDelimiters);
         const initializedState = deserialize(params);
         setStateInternal(initializedState);
         setIsInitialized(true);
@@ -325,7 +334,7 @@ function useStatefulUrl(initialState, options = {}) {
         if (!isClient() || !isInitialized)
             return;
         const handleHashChange = () => {
-            const params = parseHash(resolvedDelimiters);
+            const params = parseStatefulHash(resolvedDelimiters);
             const newState = deserialize(params);
             setStateInternal(newState);
         };
@@ -344,14 +353,14 @@ function useStatefulUrl(initialState, options = {}) {
     // Utility functions
     const syncToUrl = react.useCallback(() => {
         const serialized = serialize(state);
-        updateHash(serialized, usePushState, resolvedDelimiters, positionStrategy);
+        updateStatefulHash(serialized, usePushState, resolvedDelimiters, positionStrategy);
     }, [state, serialize, usePushState, resolvedDelimiters, positionStrategy]);
     const clearHash = react.useCallback(() => {
         if (!isClient())
             return;
         // Clear only the useStatefulUrl portion, preserve existing hash content
         const currentHash = window.location.hash.substring(1);
-        const { before, after } = extractHashParts(currentHash, resolvedDelimiters);
+        const { before, after } = extractStatefulHashParts(currentHash, resolvedDelimiters);
         const newHash = before + after;
         const newUrl = newHash
             ? `#${newHash}`

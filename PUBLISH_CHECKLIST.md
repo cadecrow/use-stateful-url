@@ -14,8 +14,7 @@
 - ✅ `package.json` - Package metadata
 
 ### What Gets Excluded (Development Files)
-- ✅ `examples/` - Demo HTML files (organized)
-- ✅ `docs/` - Development documentation (organized)
+- ✅ `docs/` - Development documentation and Demo HTML files (organized)
 - ✅ `bun-tests/` - Pure function tests
 - ✅ `browser-window-dom-tests/` - DOM tests
 - ✅ `scripts/` - Build/organization scripts
@@ -79,11 +78,8 @@ use-hash-state/
 ├── rollup.config.js   # 🔧 Build config (dev only)
 ├── tsconfig.build.json # 🔧 TypeScript config (dev only)
 ├── .npmignore         # 🔧 Publish exclusions (dev only)
-├── examples/          # 🔧 Demo HTML files (dev only)
-│   ├── demo.html
-│   ├── demo-with-unpkg.html
-│   └── delimiter-demo.html
-├── docs/              # 🔧 Development docs (dev only)
+├── docs/              # 🔧 Development docs and Demo HTML files (dev only)
+│   └── index.html
 ├── bun-tests/         # 🔧 Pure function tests (dev only)
 ├── browser-window-dom-tests/ # 🔧 DOM tests (dev only)
 └── scripts/           # 🔧 Organization scripts (dev only)

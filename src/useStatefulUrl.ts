@@ -163,7 +163,10 @@ const DEFAULT_DELIMITERS = {
 	end: "-UHS__",
 };
 
-const extractHashParts = (hash: string, delimiters = DEFAULT_DELIMITERS) => {
+const extractStatefulHashParts = (
+	hash: string,
+	delimiters = DEFAULT_DELIMITERS
+) => {
 	const startDelim = delimiters.start;
 	const endDelim = delimiters.end;
 
@@ -173,28 +176,32 @@ const extractHashParts = (hash: string, delimiters = DEFAULT_DELIMITERS) => {
 	if (startIndex === -1 || endIndex === -1 || endIndex <= startIndex) {
 		return {
 			before: hash,
-			useStatefulUrl: "",
+			statefulHash: "",
 			after: "",
+			delimiters,
 		};
 	}
 
 	return {
 		before: hash.substring(0, startIndex),
-		useStatefulUrl: hash.substring(startIndex + startDelim.length, endIndex),
+		statefulHash: hash.substring(startIndex + startDelim.length, endIndex),
 		after: hash.substring(endIndex + endDelim.length),
+		delimiters,
 	};
 };
 
-const parseHash = (delimiters = DEFAULT_DELIMITERS): URLSearchParams => {
+const parseStatefulHash = (
+	delimiters = DEFAULT_DELIMITERS
+): URLSearchParams => {
 	if (!isClient()) return new URLSearchParams();
 
 	const hash = window.location.hash.substring(1);
-	const { useStatefulUrl } = extractHashParts(hash, delimiters);
+	const { statefulHash } = extractStatefulHashParts(hash, delimiters);
 
-	return new URLSearchParams(useStatefulUrl);
+	return new URLSearchParams(statefulHash);
 };
 
-const updateHash = (
+const updateStatefulHash = (
 	params: Record<string, string>,
 	usePushState = false,
 	delimiters = DEFAULT_DELIMITERS,
@@ -206,8 +213,8 @@ const updateHash = (
 	const {
 		before,
 		after,
-		useStatefulUrl: existingState,
-	} = extractHashParts(currentHash, delimiters);
+		statefulHash: existingState,
+	} = extractStatefulHashParts(currentHash, delimiters);
 
 	const urlParams = new URLSearchParams();
 
@@ -274,7 +281,7 @@ export const hashUtils = {
 		if (!isClient()) return "";
 
 		const hash = window.location.hash.substring(1);
-		const { before, after } = extractHashParts(hash, delimiters);
+		const { before, after } = extractStatefulHashParts(hash, delimiters);
 
 		return before + after;
 	},
@@ -284,9 +291,9 @@ export const hashUtils = {
 		if (!isClient()) return "";
 
 		const hash = window.location.hash.substring(1);
-		const { useStatefulUrl } = extractHashParts(hash, delimiters);
+		const { statefulHash } = extractStatefulHashParts(hash, delimiters);
 
-		return useStatefulUrl;
+		return statefulHash;
 	},
 
 	/** Check if hash contains useStatefulUrl content */
@@ -298,20 +305,28 @@ export const hashUtils = {
 	},
 
 	/** Safely update the non-useStatefulUrl portion of the hash */
-	updateExternalHash: (
+	setExternalHash: (
 		newExternalHash: string,
-		delimiters = DEFAULT_DELIMITERS,
+		delimiters = [DEFAULT_DELIMITERS],
 		usePushState = false
 	): void => {
 		if (!isClient()) return;
 
+		const statefulHashes: string[] = [];
 		const currentHash = window.location.hash.substring(1);
-		const { useStatefulUrl } = extractHashParts(currentHash, delimiters);
+		for (const delimiter of delimiters) {
+			const { statefulHash } = extractStatefulHashParts(currentHash, delimiter);
+			if (statefulHash) {
+				statefulHashes.push(delimiter.start + statefulHash + delimiter.end);
+			}
+		}
+
+		const statefulUrl = statefulHashes.join("");
 
 		let newHash = newExternalHash;
-		if (useStatefulUrl) {
+		if (statefulUrl) {
 			// Add delimiter and useStatefulUrl content to the end for consistency
-			newHash += delimiters.start + useStatefulUrl + delimiters.end;
+			newHash += statefulUrl;
 		}
 
 		const newUrl = newHash
@@ -418,7 +433,7 @@ export function useStatefulUrl<T extends Record<string, unknown>>(
 			if (!isInitializedRef.current) return;
 
 			const serialized = serialize(newState);
-			updateHash(
+			updateStatefulHash(
 				serialized,
 				usePushState,
 				resolvedDelimiters,
@@ -438,7 +453,7 @@ export function useStatefulUrl<T extends Record<string, unknown>>(
 			return;
 		}
 
-		const params = parseHash(resolvedDelimiters);
+		const params = parseStatefulHash(resolvedDelimiters);
 		const initializedState = deserialize(params);
 
 		setStateInternal(initializedState);
@@ -457,7 +472,7 @@ export function useStatefulUrl<T extends Record<string, unknown>>(
 		if (!isClient() || !isInitialized) return;
 
 		const handleHashChange = () => {
-			const params = parseHash(resolvedDelimiters);
+			const params = parseStatefulHash(resolvedDelimiters);
 			const newState = deserialize(params);
 			setStateInternal(newState);
 		};
@@ -480,7 +495,7 @@ export function useStatefulUrl<T extends Record<string, unknown>>(
 	// Utility functions
 	const syncToUrl = useCallback(() => {
 		const serialized = serialize(state);
-		updateHash(serialized, usePushState, resolvedDelimiters, positionStrategy);
+		updateStatefulHash(serialized, usePushState, resolvedDelimiters, positionStrategy);
 	}, [state, serialize, usePushState, resolvedDelimiters, positionStrategy]);
 
 	const clearHash = useCallback(() => {
@@ -488,7 +503,7 @@ export function useStatefulUrl<T extends Record<string, unknown>>(
 
 		// Clear only the useStatefulUrl portion, preserve existing hash content
 		const currentHash = window.location.hash.substring(1);
-		const { before, after } = extractHashParts(currentHash, resolvedDelimiters);
+		const { before, after } = extractStatefulHashParts(currentHash, resolvedDelimiters);
 		const newHash = before + after;
 
 		const newUrl = newHash

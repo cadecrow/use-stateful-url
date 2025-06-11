@@ -4,7 +4,7 @@
  */
 
 import { test, describe, expect } from "bun:test";
-import { hashSerializers } from "../useStatefulUrl";
+import { hashSerializers } from "../src/useStatefulUrl";
 
 describe("Convenience Hooks - Pure Functions", () => {
 
