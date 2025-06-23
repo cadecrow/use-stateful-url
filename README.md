@@ -2,7 +2,15 @@
 
 A React hook for managing state synchronized with URL hash parameters. Useful for allowing specified pieces of state to be copy-able for sending in links or for state changes to be navigable via forward and back in the browser. Perfect for creating shareable URLs with filters, active modals, and other stateful UI components.
 
+## Use Cases (who is this for?)
+- You do not want the side effects that come with using url _query_ params.
+- You are already using state and need to quickly make part of state shareable via url without a huge refactor.
+- You are already using state and realize that you should have used the url to store state in the first place. (We provide util functions that will help while you gracefully migrate from using state to using the url).
+
+<details>
+    <summary>Sidebar</summary>
 I would love to expand this to more frameworks / communities in the future. I know many frameworks do not have the same "UI is a function of state" philosophy as React, but I could see the intended function for this project being useful in a mutated form appropriate for each framework. (Where are my other Solid.js interested folks)
+</details>
 
 ## Features
 
@@ -11,7 +19,7 @@ I would love to expand this to more frameworks / communities in the future. I kn
 - 🚀 SSR/SSG compatible (Next.js ready)
 - 🎨 Customizable serialization strategies
 - ⚡ Debounced updates to prevent URL spam
-- 🔄 Browser navigation support (back/forward buttons)
+- 🔄 Browser navigation support (back/forward buttons) - **Not default behavior. Must be specified in options.**
 - 🛠 Utility hooks for common patterns
 - 📦 Zero dependencies (except React)
 - ✨ **Automatic memoization** - define serializers inline without performance issues!
