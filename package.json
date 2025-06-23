@@ -1,6 +1,6 @@
 {
   "name": "use-stateful-url",
-  "version": "0.0.5-3",
+  "version": "0.0.5-4",
   "type": "module",
   "description": "A React hook for managing state and synchronizing it with URL hash parameters. Useful when you do not want the side effects of query parameters, are already using state and need to quickly make it shareable via url without a huge refactor, need to ensure safety with other url parameters, or need to migrate from using state to only using the url.",
   "main": "dist/useStatefulUrl.cjs.js",
