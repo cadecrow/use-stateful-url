@@ -5,6 +5,7 @@ A React hook for managing state synchronized with URL hash parameters. Useful fo
 ## Use Cases (who is this for?)
 - You do not want the side effects that come with using url _query_ params.
 - You are already using state and need to quickly make part of state shareable via url without a huge refactor.
+- Want to add stateful url fetaures and need to ensure safety with other url parameters that could be set in other parts of your application.
 - You are already using state and realize that you should have used the url to store state in the first place. (We provide util functions that will help while you gracefully migrate from using state to using the url).
 
 <details>
